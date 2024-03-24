@@ -28,8 +28,9 @@ class DesktopPet(QWidget):
         self.image = QLabel(self)
         self.image.setPixmap(self.pet_images[0][0])
         self.move_timer = QTimer()
-        self.commonAction()
+        # self.commonAction()
         self.show()
+
 
     def loadImage(self, imagepath):
         image = QPixmap()
@@ -122,15 +123,16 @@ class DesktopPet(QWidget):
         self.is_follow_mouse = False
         self.setCursor(QCursor(Qt.ArrowCursor))
 
-    def moveUpDown(self):
 
+    def moveUpDown(self):
         self.move_timer.start(100)
         self.up_down = True
         self.timer_common.start(500)
         self.timer_sleep.stop()
 
-    def upAndDown(self):
 
+    def upAndDown(self):
+        print("up ")
         if self.up_down:
             self.stop_threads = False
             t = threading.Thread(target=self.do, args={})
@@ -144,9 +146,13 @@ class DesktopPet(QWidget):
 
     def moveSleep(self):
         print("Sleep")
+        self.image.setPixmap(self.pet_images[17][0])
+
 
     def quit(self):
         print("quit")
+        self.close()
+        sys.exit()
 def main():
     app = QApplication(sys.argv)
     ex = DesktopPet()
