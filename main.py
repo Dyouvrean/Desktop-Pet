@@ -14,6 +14,7 @@ class DesktopPet(QWidget):
         self.action_images = None
         self.up_down = False
         self.is_running = False
+        self.is_crawling = False
         self.is_follow_mouse = False
         self.index = 0
         self.action_distribution=[...]
@@ -31,14 +32,21 @@ class DesktopPet(QWidget):
         self.image.setPixmap(self.pet_images[0][0])
         self.running_l_images = self.loadRunning_l_Images()
         self.running_r_images = self.loadRunning_r_Images()
+        self.crawling_l_images = self.loadcrawling_l_Images()
+        self.crawling_r_images = self.loadcrawling_r_Images()
         self.current_frame =0
-        self.move_timer = QTimer()
+        self.move_timer = QTimer(self)
+        self.move_timer.timeout.connect(self.updateLeft_Right_Position)
+        self.crawl_timer = QTimer(self)
+        self.crawl_timer.timeout.connect(self.updateLeft_Right_Position)
+
 
         # self.commonAction()
         self.show()
 
     def rightMenu(self,pos):
         self.move_timer.stop()
+        self.crawl_timer.stop()
         self.myMenu = QMenu(self)
         self.actionA = QAction(QIcon("来回跑"), "来回跑", self)
         self.actionA.triggered.connect(self.moveleftRight)
@@ -48,10 +56,13 @@ class DesktopPet(QWidget):
         self.actionC.triggered.connect(self.moveSleep)
         self.actionD = QAction(QIcon("退出"), "退出", self)
         self.actionD.triggered.connect(self.quit)
+        self.actionE = QAction(QIcon("来回爬"), "来回爬", self)
+        self.actionE.triggered.connect(self.CrawlleftRight)
         self.myMenu.addAction(self.actionA)
         self.myMenu.addAction(self.actionB)
         self.myMenu.addAction(self.actionC)
         self.myMenu.addAction(self.actionD)
+        self.myMenu.addAction(self.actionE)
         self.myMenu.popup(QCursor.pos())
     def loadImage(self, imagepath):
         image = QPixmap()
@@ -77,6 +88,16 @@ class DesktopPet(QWidget):
         for i in range(33, 35):  # Assuming N frames in the animation
             runing.append(self.pet_images[i][0])
         return runing
+    def loadcrawling_l_Images(self):
+        crawling=[]
+        for i in range(37, 39):  # Assuming N frames in the animation
+            crawling.append(self.pet_images[i][0])
+        return crawling
+    def loadcrawling_r_Images(self):
+        crawling=[]
+        for i in range(19, 21):  # Assuming N frames in the animation
+            crawling.append(self.pet_images[i][0])
+        return crawling
 
     def commonAction(self):
         # 每隔一段时间做个动作
@@ -144,25 +165,41 @@ class DesktopPet(QWidget):
 
 
     def moveleftRight(self):
-        self.move_timer.timeout.connect(self.updateLeft_Right_Position)
+        self.is_running = True
+        self.is_crawling = False
+        self.current_frame=0
         self.move_timer.start(100)
 
-    def updateAnimationFrame(self):
-        if not self.is_running:
-            return
+    def CrawlleftRight(self):
+        self.is_crawling = True
+        self.is_running = False
+        self.current_frame = 0
 
-        if self.directionX>0:
-            self.current_frame = (self.current_frame + 1) % len(self.running_r_images)
-            self.image.setPixmap(self.running_r_images[self.current_frame])
-        else:
-            self.current_frame = (self.current_frame + 1) % len(self.running_l_images)
-            self.image.setPixmap(self.running_l_images[self.current_frame])
+        self.crawl_timer.start(100)
+
+
+    def updateAnimationFrame(self):
+        if self.is_running:
+            if self.directionX>0:
+                self.current_frame = (self.current_frame + 1) % len(self.running_r_images)
+                self.image.setPixmap(self.running_r_images[self.current_frame])
+            else:
+                self.current_frame = (self.current_frame + 1) % len(self.running_l_images)
+                self.image.setPixmap(self.running_l_images[self.current_frame])
+        if self.is_crawling:
+            if self.directionX>0:
+                self.current_frame = (self.current_frame + 1) % len(self.crawling_r_images)
+                self.image.setPixmap(self.crawling_r_images[self.current_frame])
+            else:
+                self.current_frame = (self.current_frame + 1) % len(self.crawling_l_images)
+                self.image.setPixmap(self.crawling_l_images[self.current_frame])
     def updateLeft_Right_Position(self):
-        self.is_running= True
+
         screenWidth = QApplication.desktop().width()
 
         newX = self.x() + self.directionX
         newY = self.y()
+        print(self.current_frame)
         # Reverse direction if the pet hits the screen edge
         if newX < 0 or newX + self.width() > screenWidth:
             self.directionX = -self.directionX
@@ -170,8 +207,12 @@ class DesktopPet(QWidget):
         self.move(newX, newY)
         self.updateAnimationFrame()
 
+
+
+
+
+
     def updatePosition(self):
-        self.is_running= True
         screenWidth = QApplication.desktop().width()
         screenHeight = QApplication.desktop().height()
 
@@ -194,6 +235,10 @@ class DesktopPet(QWidget):
 
     def moveStop(self):
         print("Stop")
+        self.crawl_timer.stop()
+        self.move_timer.stop()
+        self.is_running=False
+        self.is_crawling= False
 
 
     def moveSleep(self):
