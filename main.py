@@ -16,6 +16,7 @@ class DesktopPet(QWidget):
         self.is_running = False
         self.is_crawling = False
         self.is_follow_mouse = False
+        self.is_shaking =False
         self.index = 0
         self.action_distribution=[...]
         self.directionX = 8 # Adjust for speed and direction
@@ -34,11 +35,14 @@ class DesktopPet(QWidget):
         self.running_r_images = self.loadRunning_r_Images()
         self.crawling_l_images = self.loadcrawling_l_Images()
         self.crawling_r_images = self.loadcrawling_r_Images()
+        self.shake_images = self.loadshake_Images()
         self.current_frame =0
         self.move_timer = QTimer(self)
         self.move_timer.timeout.connect(self.updateLeft_Right_Position)
         self.crawl_timer = QTimer(self)
         self.crawl_timer.timeout.connect(self.updateLeft_Right_Position)
+        self.shake_timer = QTimer(self)
+        self.shake_timer.timeout.connect(self.updateAnimationFrame)
 
 
         # self.commonAction()
@@ -47,6 +51,7 @@ class DesktopPet(QWidget):
     def rightMenu(self,pos):
         self.move_timer.stop()
         self.crawl_timer.stop()
+        self.shake_timer.stop()
         self.myMenu = QMenu(self)
         self.actionA = QAction(QIcon("来回跑"), "来回跑", self)
         self.actionA.triggered.connect(self.moveleftRight)
@@ -58,11 +63,14 @@ class DesktopPet(QWidget):
         self.actionD.triggered.connect(self.quit)
         self.actionE = QAction(QIcon("来回爬"), "来回爬", self)
         self.actionE.triggered.connect(self.CrawlleftRight)
+        self.actionF = QAction(QIcon("摇摆"), "摇摆", self)
+        self.actionF.triggered.connect(self.shaking)
         self.myMenu.addAction(self.actionA)
         self.myMenu.addAction(self.actionB)
         self.myMenu.addAction(self.actionC)
         self.myMenu.addAction(self.actionD)
         self.myMenu.addAction(self.actionE)
+        self.myMenu.addAction(self.actionF)
         self.myMenu.popup(QCursor.pos())
     def loadImage(self, imagepath):
         image = QPixmap()
@@ -98,6 +106,15 @@ class DesktopPet(QWidget):
         for i in range(19, 21):  # Assuming N frames in the animation
             crawling.append(self.pet_images[i][0])
         return crawling
+
+    def loadshake_Images(self):
+        shaking= []
+        for i  in range(14,16):
+            shaking.append(i)
+        return shaking
+
+
+
 
     def commonAction(self):
         # 每隔一段时间做个动作
@@ -167,16 +184,23 @@ class DesktopPet(QWidget):
     def moveleftRight(self):
         self.is_running = True
         self.is_crawling = False
+        self.is_shaking = False
         self.current_frame=0
         self.move_timer.start(100)
 
     def CrawlleftRight(self):
         self.is_crawling = True
         self.is_running = False
+        self.is_shaking = False
         self.current_frame = 0
-
         self.crawl_timer.start(100)
 
+    def shaking(self):
+        self.is_running= False
+        self.is_crawling= False
+        self.is_shaking= True
+        self.current_frame = 0
+        self.shake_timer.start(200)
 
     def updateAnimationFrame(self):
         if self.is_running:
@@ -193,6 +217,9 @@ class DesktopPet(QWidget):
             else:
                 self.current_frame = (self.current_frame + 1) % len(self.crawling_l_images)
                 self.image.setPixmap(self.crawling_l_images[self.current_frame])
+        if self.is_shaking:
+            self.current_frame=(self.current_frame + 1) % len(self.shake_images)
+            self.image.setPixmap(self.pet_images[self.shake_images[self.current_frame]][0])
     def updateLeft_Right_Position(self):
 
         screenWidth = QApplication.desktop().width()
