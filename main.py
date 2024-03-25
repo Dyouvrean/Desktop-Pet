@@ -17,6 +17,7 @@ class DesktopPet(QWidget):
         self.is_crawling = False
         self.is_follow_mouse = False
         self.is_shaking =False
+        self.is_land = False
         self.index = 0
         self.action_distribution=[...]
         self.directionX = 8 # Adjust for speed and direction
@@ -53,24 +54,32 @@ class DesktopPet(QWidget):
         self.crawl_timer.stop()
         self.shake_timer.stop()
         self.myMenu = QMenu(self)
-        self.actionA = QAction(QIcon("来回跑"), "来回跑", self)
+        self.actionA = QAction("来回跑", self)
         self.actionA.triggered.connect(self.moveleftRight)
-        self.actionB = QAction(QIcon("停止"), "停止", self)
+        self.actionB = QAction("停止", self)
         self.actionB.triggered.connect(self.moveStop)
-        self.actionC = QAction(QIcon("睡觉"), "睡觉", self)
+        self.actionC = QAction("睡觉", self)
         self.actionC.triggered.connect(self.moveSleep)
         self.actionD = QAction(QIcon("退出"), "退出", self)
         self.actionD.triggered.connect(self.quit)
-        self.actionE = QAction(QIcon("来回爬"), "来回爬", self)
+        self.actionE = QAction("来回爬", self)
         self.actionE.triggered.connect(self.CrawlleftRight)
-        self.actionF = QAction(QIcon("摇摆"), "摇摆", self)
+        self.actionF = QAction("摇摆", self)
         self.actionF.triggered.connect(self.shaking)
+
+        self.actionG = QAction("落地状态", self)
+        self.actionG.setCheckable(True)
+        self.actionG.setChecked(self.is_land)
+        self.actionG.triggered.connect(self.change_land)
+
         self.myMenu.addAction(self.actionA)
         self.myMenu.addAction(self.actionB)
         self.myMenu.addAction(self.actionC)
         self.myMenu.addAction(self.actionD)
         self.myMenu.addAction(self.actionE)
         self.myMenu.addAction(self.actionF)
+        self.myMenu.addSeparator()
+        self.myMenu.addAction(self.actionG)
         self.myMenu.popup(QCursor.pos())
     def loadImage(self, imagepath):
         image = QPixmap()
@@ -172,14 +181,14 @@ class DesktopPet(QWidget):
         if Qt.LeftButton and self.is_follow_mouse:
             self.move(event.globalPos() - self.mouse_drag_pos)
             event.accept()
-
+        self.image.setPixmap(self.pet_images[6][0])
     '''鼠标释放时, 取消绑定'''
 
     def mouseReleaseEvent(self, event):
         print("mousereleaaseEvent")
         self.is_follow_mouse = False
         self.setCursor(QCursor(Qt.ArrowCursor))
-
+        self.image.setPixmap(self.pet_images[29][0])
 
     def moveleftRight(self):
         self.is_running = True
@@ -258,8 +267,10 @@ class DesktopPet(QWidget):
         self.move(newX, newY)
         self.updateAnimationFrame()
 
-
-
+    def change_land(self):
+        print(self.is_land)
+        self.is_land=not self.is_land
+        print(self.is_land)
     def moveStop(self):
         print("Stop")
         self.crawl_timer.stop()
