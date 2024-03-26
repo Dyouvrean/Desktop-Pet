@@ -19,6 +19,10 @@ class DesktopPet(QWidget):
         self.is_shaking =False
         self.is_land = False
         self.index = 0
+        self.is_falling = False
+        self.velocity = 0
+        self.gravity = 1  # Adjust this value to change the gravity effect
+        self.ground_level = QApplication.desktop().availableGeometry().bottom() - self.height()
         self.action_distribution=[...]
         self.directionX = 8 # Adjust for speed and direction
         self.directionY = 5  # Adjust for speed and direction
@@ -44,6 +48,8 @@ class DesktopPet(QWidget):
         self.crawl_timer.timeout.connect(self.updateLeft_Right_Position)
         self.shake_timer = QTimer(self)
         self.shake_timer.timeout.connect(self.updateAnimationFrame)
+        self.gravity_timer = QTimer(self)
+        self.gravity_timer.timeout.connect(self.applyGravity)
 
 
         # self.commonAction()
@@ -169,6 +175,7 @@ class DesktopPet(QWidget):
 
 
     def mousePressEvent(self, event):
+        self.gravity_timer.stop()
         if event.button() == Qt.LeftButton:
             self.is_follow_mouse = True
             self.mouse_drag_pos = event.globalPos() - self.pos()
@@ -189,6 +196,9 @@ class DesktopPet(QWidget):
         self.is_follow_mouse = False
         self.setCursor(QCursor(Qt.ArrowCursor))
         self.image.setPixmap(self.pet_images[29][0])
+        if  self.is_land:
+            self.is_falling = True
+            self.gravity_timer.start(100)
 
     def moveleftRight(self):
         self.is_running = True
@@ -266,6 +276,26 @@ class DesktopPet(QWidget):
 
         self.move(newX, newY)
         self.updateAnimationFrame()
+
+    def applyGravity(self):
+        if not self.is_falling:
+            return
+
+        self.velocity += self.gravity
+        newY = self.y() + self.velocity
+        # Check if the pet has hit the ground
+        print(newY)
+        self.image.setPixmap(self.pet_images[18][0])
+        if newY >= self.ground_level:
+            newY = self.ground_level
+            self.velocity = 0
+            self.is_falling = False  # Stop falling once the ground is hit
+            self.image.setPixmap(self.pet_images[41][0])
+            self.gravity_timer.stop()
+
+        self.move(self.x(), newY)
+
+
 
     def change_land(self):
         print(self.is_land)
