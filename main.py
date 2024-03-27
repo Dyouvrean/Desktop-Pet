@@ -20,6 +20,7 @@ class DesktopPet(QWidget):
         self.is_land = False
         self.index = 0
         self.is_falling = False
+        self.is_lean_on_wall = False
         self.velocity = 0
         self.gravity = 1  # Adjust this value to change the gravity effect
         self.ground_level = QApplication.desktop().availableGeometry().bottom() - self.height()
@@ -87,6 +88,9 @@ class DesktopPet(QWidget):
         self.myMenu.addSeparator()
         self.myMenu.addAction(self.actionG)
         self.myMenu.popup(QCursor.pos())
+
+
+
     def loadImage(self, imagepath):
         image = QPixmap()
         image.load(imagepath)
@@ -95,7 +99,7 @@ class DesktopPet(QWidget):
     def loadPetImages(self):
         #actions = self.action_distribution
         pet_images = []
-        for item in range(1,47):
+        for item in range(1,49):
             pet_images.append(
                 [self.loadImage(os.path.join("img", 'shime' + str(item) + '.png'))])
         iconpath = os.path.join("4", 'shime1.png')
@@ -196,7 +200,15 @@ class DesktopPet(QWidget):
         self.is_follow_mouse = False
         self.setCursor(QCursor(Qt.ArrowCursor))
         self.image.setPixmap(self.pet_images[29][0])
-        if  self.is_land:
+        if self.x()+ 20< 0 :
+            self.image.setPixmap(self.pet_images[11][0])
+            self.move(-65,self.y())
+            self.is_lean_on_wall = True
+        elif (self.x()+ 130) > QApplication.desktop().width():
+            self.image.setPixmap(self.pet_images[46][0])
+            self.move(1840, self.y())
+            self.is_lean_on_wall = True
+        elif  self.is_land:
             self.is_falling = True
             self.gravity_timer.start(100)
 
@@ -252,8 +264,6 @@ class DesktopPet(QWidget):
             newX += 2 * self.directionX
         self.move(newX, newY)
         self.updateAnimationFrame()
-
-
 
 
 
