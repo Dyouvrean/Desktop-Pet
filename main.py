@@ -2,6 +2,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
+from PyQt5.QtMultimedia import QSound
 import os
 import sys
 import random
@@ -51,6 +52,8 @@ class DesktopPet(QWidget):
         self.shake_timer.timeout.connect(self.updateAnimationFrame)
         self.gravity_timer = QTimer(self)
         self.gravity_timer.timeout.connect(self.applyGravity)
+        self.shaking_sound_timer = QTimer(self)
+        self.shaking_sound_timer.timeout.connect(self.playShakingSound)
 
 
         # self.commonAction()
@@ -159,24 +162,6 @@ class DesktopPet(QWidget):
 
 
 
-    def selfMoveAction(self):
-        try:
-            if self.flag_up:
-                if self.pos().y() - self.pet_geo_height / 2 > -70:
-                    self.move(QPoint(self.position.x(), self.position.y() - 5))
-                    self.position = QPoint(self.position.x(), self.position.y() - 5)
-                else:
-                    self.flag_up = False
-            elif not self.flag_up:
-                if self.pos().y() + self.pet_geo_height / 2 < 700:
-                    self.move(QPoint(self.position.x(), self.position.y() + 50))
-                    self.position = QPoint(self.position.x(), self.position.y() + 50)
-                else:
-                    self.flag_up = True
-        except Exception as e:
-            print(e)
-
-
 
     def mousePressEvent(self, event):
         self.gravity_timer.stop()
@@ -231,8 +216,13 @@ class DesktopPet(QWidget):
         self.is_crawling= False
         self.is_shaking= True
         self.current_frame = 0
-        self.shake_timer.start(200)
+        self.shaking_sound_timer.start(3000)
+        QSound.play("摇摆.wav")
+        self.shake_timer.start(600)
 
+
+    def playShakingSound(self):
+        QSound.play("摇摆.wav")
     def updateAnimationFrame(self):
         if self.is_running:
             if self.directionX>0:
@@ -249,15 +239,13 @@ class DesktopPet(QWidget):
                 self.current_frame = (self.current_frame + 1) % len(self.crawling_l_images)
                 self.image.setPixmap(self.crawling_l_images[self.current_frame])
         if self.is_shaking:
+
             self.current_frame=(self.current_frame + 1) % len(self.shake_images)
             self.image.setPixmap(self.pet_images[self.shake_images[self.current_frame]][0])
     def updateLeft_Right_Position(self):
-
         screenWidth = QApplication.desktop().width()
-
         newX = self.x() + self.directionX
         newY = self.y()
-        print(self.current_frame)
         # Reverse direction if the pet hits the screen edge
         if newX < 0 or newX + self.width() > screenWidth:
             self.directionX = -self.directionX
@@ -308,9 +296,7 @@ class DesktopPet(QWidget):
 
 
     def change_land(self):
-        print(self.is_land)
         self.is_land=not self.is_land
-        print(self.is_land)
     def moveStop(self):
         print("Stop")
         self.crawl_timer.stop()
