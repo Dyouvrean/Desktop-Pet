@@ -42,8 +42,8 @@ class DesktopPet(QWidget):
         self.running_r_images = self.loadRunning_r_Images()
         self.crawling_l_images = self.loadcrawling_l_Images()
         self.crawling_r_images = self.loadcrawling_r_Images()
-
-
+        self.wall_r_images = self.loadWall_r_Images()
+        self.wall_l_images = self.loadWall_l_Images()
         self.shake_images = self.loadshake_Images()
         self.current_frame =0
         self.move_timer = QTimer(self)
@@ -56,6 +56,8 @@ class DesktopPet(QWidget):
         self.gravity_timer.timeout.connect(self.applyGravity)
         self.shaking_sound_timer = QTimer(self)
         self.shaking_sound_timer.timeout.connect(self.playShakingSound)
+        self.climbing_timer = QTimer(self)
+        self.climbing_timer.timeout.connect(self.updateUP_downPosition)
 
 
         # self.commonAction()
@@ -66,6 +68,7 @@ class DesktopPet(QWidget):
         self.crawl_timer.stop()
         self.shake_timer.stop()
         self.shaking_sound_timer.stop()
+        self.climbing_timer.stop()
         self.myMenu = QMenu(self)
         self.actionA = QAction("来回跑", self)
         self.actionA.triggered.connect(self.moveleftRight)
@@ -85,12 +88,17 @@ class DesktopPet(QWidget):
         self.actionG.setChecked(self.is_land)
         self.actionG.triggered.connect(self.change_land)
 
+        self.actionH = QAction("爬墙", self)
+        self.actionH.setEnabled(self.is_lean_on_wall)
+        self.actionH.triggered.connect(self.climbing)
+
         self.myMenu.addAction(self.actionA)
         self.myMenu.addAction(self.actionB)
         self.myMenu.addAction(self.actionC)
         self.myMenu.addAction(self.actionD)
         self.myMenu.addAction(self.actionE)
         self.myMenu.addAction(self.actionF)
+        self.myMenu.addAction(self.actionH)
         self.myMenu.addSeparator()
         self.myMenu.addAction(self.actionG)
         self.myMenu.popup(QCursor.pos())
@@ -105,7 +113,7 @@ class DesktopPet(QWidget):
     def loadPetImages(self):
         #actions = self.action_distribution
         pet_images = []
-        for item in range(1,50):
+        for item in range(1,49):
             pet_images.append(
                 [self.loadImage(os.path.join("img", 'shime' + str(item) + '.png'))])
         iconpath = os.path.join("4", 'shime1.png')
@@ -132,6 +140,17 @@ class DesktopPet(QWidget):
             crawling.append(self.pet_images[i][0])
         return crawling
 
+    def loadWall_r_Images(self):
+        wall = []
+        for i in range(46, 49):  # Assuming N frames in the animation
+            wall.append(i)
+        return wall
+
+    def loadWall_l_Images(self):
+        wall = []
+        for i in range(11, 14):  # Assuming N frames in the animation
+            wall.append(i)
+        return wall
     def loadshake_Images(self):
         shaking= []
         for i  in range(14,16):
@@ -193,14 +212,16 @@ class DesktopPet(QWidget):
             self.image.setPixmap(self.pet_images[11][0])
             self.move(-65,self.y())
             self.is_lean_on_wall = True
+            return
         elif (self.x()+ 130) > QApplication.desktop().width():
             self.image.setPixmap(self.pet_images[46][0])
             self.move(1840, self.y())
             self.is_lean_on_wall = True
+            return
         elif  self.is_land:
             self.is_falling = True
             self.gravity_timer.start(100)
-
+        self.is_lean_on_wall = False
     def moveleftRight(self):
         self.is_running = True
         self.is_crawling = False
@@ -224,7 +245,8 @@ class DesktopPet(QWidget):
         QSound.play("摇摆.wav")
         self.shake_timer.start(600)
 
-
+    def climbing(self):
+        self.climbing_timer.start(100)
     def playShakingSound(self):
         QSound.play("摇摆.wav")
     def updateAnimationFrame(self):
@@ -258,6 +280,13 @@ class DesktopPet(QWidget):
         self.updateAnimationFrame()
 
 
+    def updateUP_downPosition(self):
+        screenHeight = QApplication.desktop().height()
+        newY = self.y() + self.directionY
+        if newY < 0 or newY + self.height() > screenHeight:
+            self.directionY = -self.directionY
+            newY += 2 * self.directionY
+        self.move(self.x(), newY)
 
 
     def updatePosition(self):
