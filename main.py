@@ -113,7 +113,7 @@ class DesktopPet(QWidget):
     def loadPetImages(self):
         #actions = self.action_distribution
         pet_images = []
-        for item in range(1,49):
+        for item in range(1,50):
             pet_images.append(
                 [self.loadImage(os.path.join("img", 'shime' + str(item) + '.png'))])
         iconpath = os.path.join("4", 'shime1.png')
@@ -246,7 +246,9 @@ class DesktopPet(QWidget):
         self.shake_timer.start(600)
 
     def climbing(self):
+        self.current_frame = 0
         self.climbing_timer.start(100)
+
     def playShakingSound(self):
         QSound.play("摇摆.wav")
     def updateAnimationFrame(self):
@@ -265,7 +267,6 @@ class DesktopPet(QWidget):
                 self.current_frame = (self.current_frame + 1) % len(self.crawling_l_images)
                 self.image.setPixmap(self.crawling_l_images[self.current_frame])
         if self.is_shaking:
-
             self.current_frame=(self.current_frame + 1) % len(self.shake_images)
             self.image.setPixmap(self.pet_images[self.shake_images[self.current_frame]][0])
     def updateLeft_Right_Position(self):
@@ -287,8 +288,23 @@ class DesktopPet(QWidget):
             self.directionY = -self.directionY
             newY += 2 * self.directionY
         self.move(self.x(), newY)
+        self.updateUpDownAnimationFrame()
+    def updateUpDownAnimationFrame(self):
+        if self.x() < -50:
+            if self.directionY>0:
+                self.current_frame = (self.current_frame + 1) % len(self.wall_l_images)
+                self.image.setPixmap(self.pet_images[self.wall_l_images[self.current_frame]][0])
+            else:
+                self.current_frame = (self.current_frame -1) % len(self.wall_l_images)
+                self.image.setPixmap(self.pet_images[self.wall_l_images[self.current_frame]][0])
+        elif self.x() > 1800:
+            if self.directionY>0:
+                self.current_frame = (self.current_frame + 1) % len(self.wall_r_images)
+                self.image.setPixmap(self.pet_images[self.wall_r_images[self.current_frame]][0])
+            else:
+                self.current_frame = (self.current_frame -1) % len(self.wall_r_images)
 
-
+                self.image.setPixmap(self.pet_images[self.wall_r_images[self.current_frame]][0])
     def updatePosition(self):
         screenWidth = QApplication.desktop().width()
         screenHeight = QApplication.desktop().height()
