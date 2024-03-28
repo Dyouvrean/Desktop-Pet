@@ -42,6 +42,8 @@ class DesktopPet(QWidget):
         self.running_r_images = self.loadRunning_r_Images()
         self.crawling_l_images = self.loadcrawling_l_Images()
         self.crawling_r_images = self.loadcrawling_r_Images()
+
+
         self.shake_images = self.loadshake_Images()
         self.current_frame =0
         self.move_timer = QTimer(self)
@@ -63,6 +65,7 @@ class DesktopPet(QWidget):
         self.move_timer.stop()
         self.crawl_timer.stop()
         self.shake_timer.stop()
+        self.shaking_sound_timer.stop()
         self.myMenu = QMenu(self)
         self.actionA = QAction("来回跑", self)
         self.actionA.triggered.connect(self.moveleftRight)
@@ -102,7 +105,7 @@ class DesktopPet(QWidget):
     def loadPetImages(self):
         #actions = self.action_distribution
         pet_images = []
-        for item in range(1,49):
+        for item in range(1,50):
             pet_images.append(
                 [self.loadImage(os.path.join("img", 'shime' + str(item) + '.png'))])
         iconpath = os.path.join("4", 'shime1.png')
@@ -165,6 +168,7 @@ class DesktopPet(QWidget):
 
     def mousePressEvent(self, event):
         self.gravity_timer.stop()
+        QSound.play("哈啊.wav")
         if event.button() == Qt.LeftButton:
             self.is_follow_mouse = True
             self.mouse_drag_pos = event.globalPos() - self.pos()
