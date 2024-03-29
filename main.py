@@ -56,6 +56,8 @@ class DesktopPet(QWidget):
         self.gravity_timer.timeout.connect(self.applyGravity)
         self.shaking_sound_timer = QTimer(self)
         self.shaking_sound_timer.timeout.connect(self.playShakingSound)
+        self.walking_sound_timer = QTimer(self)
+        self.walking_sound_timer.timeout.connect(self.playWalkingSound)
         self.climbing_timer = QTimer(self)
         self.climbing_timer.timeout.connect(self.updateUP_downPosition)
 
@@ -69,6 +71,7 @@ class DesktopPet(QWidget):
         self.shake_timer.stop()
         self.shaking_sound_timer.stop()
         self.climbing_timer.stop()
+        self.walking_sound_timer.stop()
         self.myMenu = QMenu(self)
         self.actionA = QAction("来回跑", self)
         self.actionA.triggered.connect(self.moveleftRight)
@@ -187,7 +190,7 @@ class DesktopPet(QWidget):
 
     def mousePressEvent(self, event):
         self.gravity_timer.stop()
-        QSound.play("哈啊.wav")
+        QSound.play("呀哈.wav")
         if event.button() == Qt.LeftButton:
             self.is_follow_mouse = True
             self.mouse_drag_pos = event.globalPos() - self.pos()
@@ -227,7 +230,9 @@ class DesktopPet(QWidget):
         self.is_crawling = False
         self.is_shaking = False
         self.current_frame=0
-        self.move_timer.start(100)
+        self.move_timer.start(300)
+        QSound.play("走路.wav")
+        self.walking_sound_timer.start(3000)
 
     def CrawlleftRight(self):
         self.is_crawling = True
@@ -251,6 +256,9 @@ class DesktopPet(QWidget):
 
     def playShakingSound(self):
         QSound.play("摇摆.wav")
+
+    def playWalkingSound(self):
+        QSound.play("走路.wav")
     def updateAnimationFrame(self):
         if self.is_running:
             if self.directionX>0:
