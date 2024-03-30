@@ -42,7 +42,7 @@ class DesktopPet(QWidget):
         self.initDateTimeDisplay()
         self.image = QLabel(self)
         self.image.setFixedSize(200,300)
-        self.image.setPixmap(self.pet_images[0][0])
+        # self.image.setPixmap(self.pet_images[0][0])
         self.running_l_images = self.loadRunning_l_Images()
         self.running_r_images = self.loadRunning_r_Images()
         self.crawling_l_images = self.loadcrawling_l_Images()
@@ -71,7 +71,7 @@ class DesktopPet(QWidget):
         url = QUrl.fromLocalFile("下落 (2).wav")
         self.content = QMediaContent(url)
         self.player.setMedia(self.content)
-
+        self.initDisplay()
         # self.commonAction()
         self.show()
 
@@ -88,7 +88,19 @@ class DesktopPet(QWidget):
         self.displayTimer = QTimer(self)
         self.displayTimer.setSingleShot(True)  # Ensure the timer only triggers once
         self.displayTimer.timeout.connect(self.hide_time)
+    def initDisplay(self):
+        self.movie = QMovie("入场.gif")
+        self.movie.frameChanged.connect(self.end_animation)
+        self.image.setAlignment(Qt.AlignCenter)
+        self.image.setMovie(self.movie)
+        QSound.play("入场.wav")
+        self.movie.start()
 
+
+    def end_animation(self,frameNumber):
+        if frameNumber == self.movie.frameCount() - 1:
+            self.movie.stop()
+            self.image.setPixmap(self.pet_images[0][0])
     def rightMenu(self,pos):
         self.move_timer.stop()
         self.crawl_timer.stop()
