@@ -2,7 +2,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
-from PyQt5.QtMultimedia import QSound
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent,QSound
 import os
 import sys
 import random
@@ -24,7 +24,8 @@ class DesktopPet(QWidget):
         self.is_lean_on_wall = False
         self.velocity = 0
         self.gravity = 1  # Adjust this value to change the gravity effect
-        self.ground_level = QApplication.desktop().availableGeometry().bottom() - self.height()
+        #self.ground_level = QApplication.desktop().availableGeometry().bottom() - self.height()
+        self.ground_level = 700
         self.action_distribution=[...]
         self.directionX = 8 # Adjust for speed and direction
         self.directionY = 5  # Adjust for speed and direction
@@ -62,7 +63,10 @@ class DesktopPet(QWidget):
         self.falling_sound_timer.timeout.connect(self.playFallingSound)
         self.climbing_timer = QTimer(self)
         self.climbing_timer.timeout.connect(self.updateUP_downPosition)
-
+        self.player = QMediaPlayer()
+        url = QUrl.fromLocalFile("下落 (2).wav")
+        self.content = QMediaContent(url)
+        self.player.setMedia(self.content)
 
         # self.commonAction()
         self.show()
@@ -227,8 +231,9 @@ class DesktopPet(QWidget):
         elif  self.is_land:
             self.is_falling = True
             self.gravity_timer.start(100)
-            self.falling_sound_timer.start(5000)
-            QSound.play("下落.wav")
+            self.player.play()
+            self.falling_sound_timer.start(1000)
+
         self.is_lean_on_wall = False
     def moveleftRight(self):
         self.is_running = True
@@ -265,9 +270,8 @@ class DesktopPet(QWidget):
     def playWalkingSound(self):
         QSound.play("走路.wav")
 
-
     def playFallingSound(self):
-        QSound.play("下落.wav")
+        self.player.play()
     def updateAnimationFrame(self):
         if self.is_running:
             if self.directionX>0:
@@ -355,10 +359,23 @@ class DesktopPet(QWidget):
             self.velocity = 0
             self.is_falling = False  # Stop falling once the ground is hit
             self.image.setPixmap(self.pet_images[41][0])
+            self.startFallThread()
             self.gravity_timer.stop()
             self.falling_sound_timer.stop()
+            self.player.stop()
+            QSound.play("落地.wav")
         self.move(self.x(), newY)
 
+    def startFallThread(self):
+        # Start a thread to perform an action after 5 seconds
+        threading.Thread(target=self.performActionAfterDelay, args=(0.4,), daemon=True).start()
+
+    def performActionAfterDelay(self, delay):
+        threading.Event().wait(delay)
+        self.performLandingPos()
+
+    def performLandingPos(self):
+        self.image.setPixmap(self.pet_images[27][0])
 
 
     def change_land(self):
