@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent,QSound
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont,QMovie
 import os
 import sys
 import random
@@ -41,7 +41,7 @@ class DesktopPet(QWidget):
         self.pet_images, iconpath = self.loadPetImages()
         self.initDateTimeDisplay()
         self.image = QLabel(self)
-        self.image.setFixedSize(200,200)
+        self.image.setFixedSize(200,300)
         self.image.setPixmap(self.pet_images[0][0])
         self.running_l_images = self.loadRunning_l_Images()
         self.running_r_images = self.loadRunning_r_Images()
@@ -85,7 +85,6 @@ class DesktopPet(QWidget):
         self.dateTimeLabel.adjustSize()
         self.dateTimeLabel.setFont(font)
         self.dateTimeLabel.setHidden(True)
-
         self.displayTimer = QTimer(self)
         self.displayTimer.setSingleShot(True)  # Ensure the timer only triggers once
         self.displayTimer.timeout.connect(self.hide_time)
@@ -292,11 +291,25 @@ class DesktopPet(QWidget):
         dateTimeString = now.strftime("%Y-%m-%d %H:%M")
         self.dateTimeLabel.setText(dateTimeString)
         self.dateTimeLabel.setHidden(False)
-        self.displayTimer.start(5000)
+        self.movie = QMovie("拍照.gif")
+        self.movie.frameChanged.connect(self.lastFrame)
+        self.image.setAlignment(Qt.AlignCenter)
+        self.image.setMovie(self.movie)
+        self.movie.start()
+        QSound.play("拍照屁股呀哈.wav")
+        self.show()
+        self.displayTimer.start(4000)
 
+    def lastFrame(self,frameNumber):
+        if frameNumber == self.movie.frameCount() - 1:
+            self.movie.stop()
+        # Set the movie to its last frame
+        # QMovie's currentFrameNumber is 0-based, and frameCount is 1-based
+        # self.movie.jumpToFrame(self.movie.frameCount() - 1)
 
     def hide_time(self):
         self.dateTimeLabel.setHidden(True)
+        self.image.setPixmap(self.pet_images[27][0])
     def playShakingSound(self):
         QSound.play("摇摆.wav")
 
