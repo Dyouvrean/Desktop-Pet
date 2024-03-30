@@ -216,6 +216,7 @@ class DesktopPet(QWidget):
 
 
     def mousePressEvent(self, event):
+        self.climbing_timer.stop()
         self.gravity_timer.stop()
         self.falling_sound_timer.stop()
         if event.button() == Qt.LeftButton:
