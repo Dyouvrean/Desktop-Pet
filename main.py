@@ -3,10 +3,12 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent,QSound
+from PyQt5.QtGui import QFont
 import os
 import sys
 import random
 import threading
+from datetime import datetime
 
 class DesktopPet(QWidget):
     tool_name = '桌面宠物'
@@ -33,11 +35,13 @@ class DesktopPet(QWidget):
         self.setAutoFillBackground(False)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.repaint()
-        self.resize(128, 128)
+        self.resize(400, 500)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.rightMenu)
         self.pet_images, iconpath = self.loadPetImages()
+        self.initDateTimeDisplay()
         self.image = QLabel(self)
+        self.image.setFixedSize(200,200)
         self.image.setPixmap(self.pet_images[0][0])
         self.running_l_images = self.loadRunning_l_Images()
         self.running_r_images = self.loadRunning_r_Images()
@@ -71,6 +75,21 @@ class DesktopPet(QWidget):
         # self.commonAction()
         self.show()
 
+    def initDateTimeDisplay(self):
+        self.dateTimeLabel = QLabel(self)
+        self.dateTimeLabel.setFixedSize(400, 200)
+        self.dateTimeLabel.move(0, -70)
+        font = QFont()
+        font.setPointSize(16)  # You can change the size to whatever you need
+        self.dateTimeLabel.setStyleSheet("font: bold;font:15pt '楷体';color:white")
+        self.dateTimeLabel.adjustSize()
+        self.dateTimeLabel.setFont(font)
+        self.dateTimeLabel.setHidden(True)
+
+        self.displayTimer = QTimer(self)
+        self.displayTimer.setSingleShot(True)  # Ensure the timer only triggers once
+        self.displayTimer.timeout.connect(self.hide_time)
+
     def rightMenu(self,pos):
         self.move_timer.stop()
         self.crawl_timer.stop()
@@ -92,6 +111,8 @@ class DesktopPet(QWidget):
         self.actionF = QAction("摇摆", self)
         self.actionF.triggered.connect(self.shaking)
 
+        self.actionI = QAction("Tell me Time", self)
+        self.actionI.triggered.connect(self.showTime)
         self.actionG = QAction("落地状态", self)
         self.actionG.setCheckable(True)
         self.actionG.setChecked(self.is_land)
@@ -108,6 +129,7 @@ class DesktopPet(QWidget):
         self.myMenu.addAction(self.actionE)
         self.myMenu.addAction(self.actionF)
         self.myMenu.addAction(self.actionH)
+        self.myMenu.addAction(self.actionI)
         self.myMenu.addSeparator()
         self.myMenu.addAction(self.actionG)
         self.myMenu.popup(QCursor.pos())
@@ -264,6 +286,17 @@ class DesktopPet(QWidget):
         self.current_frame = 0
         self.climbing_timer.start(100)
 
+
+    def showTime(self):
+        now = datetime.now()
+        dateTimeString = now.strftime("%Y-%m-%d %H:%M")
+        self.dateTimeLabel.setText(dateTimeString)
+        self.dateTimeLabel.setHidden(False)
+        self.displayTimer.start(5000)
+
+
+    def hide_time(self):
+        self.dateTimeLabel.setHidden(True)
     def playShakingSound(self):
         QSound.play("摇摆.wav")
 
