@@ -68,7 +68,7 @@ class DesktopPet(QWidget):
         self.climbing_timer = QTimer(self)
         self.climbing_timer.timeout.connect(self.updateUP_downPosition)
         self.player = QMediaPlayer()
-        url = QUrl.fromLocalFile("下落 (2).wav")
+        url = QUrl.fromLocalFile("Audio/下落 (2).wav")
         self.content = QMediaContent(url)
         self.player.setMedia(self.content)
         self.initDisplay()
@@ -89,11 +89,11 @@ class DesktopPet(QWidget):
         self.displayTimer.setSingleShot(True)  # Ensure the timer only triggers once
         self.displayTimer.timeout.connect(self.hide_time)
     def initDisplay(self):
-        self.movie = QMovie("入场.gif")
+        self.movie = QMovie("GIF/入场.gif")
         self.movie.frameChanged.connect(self.end_animation)
         self.image.setAlignment(Qt.AlignCenter)
         self.image.setMovie(self.movie)
-        QSound.play("入场.wav")
+        QSound.play("Audio/入场.wav")
         self.movie.start()
 
 
@@ -232,7 +232,7 @@ class DesktopPet(QWidget):
         self.gravity_timer.stop()
         self.falling_sound_timer.stop()
         if event.button() == Qt.LeftButton:
-            QSound.play("呀哈.wav")
+            QSound.play("Audio/呀哈.wav")
             self.is_follow_mouse = True
             self.mouse_drag_pos = event.globalPos() - self.pos()
             event.accept()
@@ -275,7 +275,7 @@ class DesktopPet(QWidget):
         self.is_shaking = False
         self.current_frame=0
         self.move_timer.start(300)
-        QSound.play("走路.wav")
+        QSound.play("Audio/走路.wav")
         self.walking_sound_timer.start(3000)
 
     def CrawlleftRight(self):
@@ -291,7 +291,7 @@ class DesktopPet(QWidget):
         self.is_shaking= True
         self.current_frame = 0
         self.shaking_sound_timer.start(3000)
-        QSound.play("摇摆.wav")
+        QSound.play("Audio/摇摆.wav")
         self.shake_timer.start(600)
 
     def climbing(self):
@@ -304,12 +304,12 @@ class DesktopPet(QWidget):
         dateTimeString = now.strftime("%Y-%m-%d %H:%M")
         self.dateTimeLabel.setText(dateTimeString)
         self.dateTimeLabel.setHidden(False)
-        self.movie = QMovie("拍照.gif")
+        self.movie = QMovie("GIF/拍照.gif")
         self.movie.frameChanged.connect(self.lastFrame)
         self.image.setAlignment(Qt.AlignCenter)
         self.image.setMovie(self.movie)
         self.movie.start()
-        QSound.play("拍照屁股呀哈.wav")
+        QSound.play("Audio/拍照屁股呀哈.wav")
         self.show()
         self.displayTimer.start(4000)
 
@@ -324,10 +324,10 @@ class DesktopPet(QWidget):
         self.dateTimeLabel.setHidden(True)
         self.image.setPixmap(self.pet_images[27][0])
     def playShakingSound(self):
-        QSound.play("摇摆.wav")
+        QSound.play("Audio/摇摆.wav")
 
     def playWalkingSound(self):
-        QSound.play("走路.wav")
+        QSound.play("Audio/走路.wav")
 
     def playFallingSound(self):
         self.player.play()
@@ -422,7 +422,7 @@ class DesktopPet(QWidget):
             self.gravity_timer.stop()
             self.falling_sound_timer.stop()
             self.player.stop()
-            QSound.play("落地.wav")
+            QSound.play("Audio/落地.wav")
         self.move(self.x(), newY)
 
     def startFallThread(self):
