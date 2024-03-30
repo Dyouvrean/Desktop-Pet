@@ -58,6 +58,8 @@ class DesktopPet(QWidget):
         self.shaking_sound_timer.timeout.connect(self.playShakingSound)
         self.walking_sound_timer = QTimer(self)
         self.walking_sound_timer.timeout.connect(self.playWalkingSound)
+        self.falling_sound_timer = QTimer(self)
+        self.falling_sound_timer.timeout.connect(self.playFallingSound)
         self.climbing_timer = QTimer(self)
         self.climbing_timer.timeout.connect(self.updateUP_downPosition)
 
@@ -190,8 +192,9 @@ class DesktopPet(QWidget):
 
     def mousePressEvent(self, event):
         self.gravity_timer.stop()
-        QSound.play("呀哈.wav")
+        self.falling_sound_timer.stop()
         if event.button() == Qt.LeftButton:
+            QSound.play("呀哈.wav")
             self.is_follow_mouse = True
             self.mouse_drag_pos = event.globalPos() - self.pos()
             event.accept()
@@ -224,6 +227,8 @@ class DesktopPet(QWidget):
         elif  self.is_land:
             self.is_falling = True
             self.gravity_timer.start(100)
+            self.falling_sound_timer.start(5000)
+            QSound.play("下落.wav")
         self.is_lean_on_wall = False
     def moveleftRight(self):
         self.is_running = True
@@ -259,6 +264,10 @@ class DesktopPet(QWidget):
 
     def playWalkingSound(self):
         QSound.play("走路.wav")
+
+
+    def playFallingSound(self):
+        QSound.play("下落.wav")
     def updateAnimationFrame(self):
         if self.is_running:
             if self.directionX>0:
@@ -347,7 +356,7 @@ class DesktopPet(QWidget):
             self.is_falling = False  # Stop falling once the ground is hit
             self.image.setPixmap(self.pet_images[41][0])
             self.gravity_timer.stop()
-
+            self.falling_sound_timer.stop()
         self.move(self.x(), newY)
 
 
