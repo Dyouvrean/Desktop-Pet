@@ -9,3 +9,6 @@
 * Climb the wall when leaning on the wall
 * Free body 
 * Move with the mouse
+
+## Feature Plan
+* speech_recognition
