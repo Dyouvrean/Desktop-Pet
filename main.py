@@ -9,6 +9,7 @@ import sys
 import random
 import threading
 from datetime import datetime
+from Speech_model import ListenerThread
 
 class DesktopPet(QWidget):
     tool_name = '桌面宠物'
@@ -24,6 +25,7 @@ class DesktopPet(QWidget):
         self.index = 0
         self.is_falling = False
         self.is_lean_on_wall = False
+        self.is_listening = False
         self.velocity = 0
         self.gravity = 1  # Adjust this value to change the gravity effect
         #self.ground_level = QApplication.desktop().availableGeometry().bottom() - self.height()
@@ -72,6 +74,7 @@ class DesktopPet(QWidget):
         self.content = QMediaContent(url)
         self.player.setMedia(self.content)
         self.initDisplay()
+        self.initSpeech_model()
         # self.commonAction()
         self.show()
 
@@ -96,6 +99,13 @@ class DesktopPet(QWidget):
         QSound.play("Audio/入场.wav")
         self.movie.start()
 
+    def initSpeech_model(self):
+        self.listenerThread = ListenerThread(self.is_listening)
+        self.listenerThread.recognizedSpeech.connect(self.handleSpeech)
+        self.listenerThread.start()
+
+    def handleSpeech(self, text):
+        print(f"Handling recognized speech: {text}")
 
     def end_animation(self,frameNumber):
         if frameNumber == self.movie.frameCount() - 1:
@@ -133,6 +143,11 @@ class DesktopPet(QWidget):
         self.actionH.setEnabled(self.is_lean_on_wall)
         self.actionH.triggered.connect(self.climbing)
 
+        self.actionJ = QAction("Speaking", self)
+        self.actionJ.setCheckable(True)
+        self.actionJ.setChecked(self.is_listening)
+        self.actionJ.triggered.connect(self.change_listen)
+
         self.myMenu.addAction(self.actionA)
         self.myMenu.addAction(self.actionB)
         self.myMenu.addAction(self.actionC)
@@ -143,6 +158,7 @@ class DesktopPet(QWidget):
         self.myMenu.addAction(self.actionI)
         self.myMenu.addSeparator()
         self.myMenu.addAction(self.actionG)
+        self.myMenu.addAction(self.actionJ)
         self.myMenu.popup(QCursor.pos())
 
 
@@ -439,6 +455,15 @@ class DesktopPet(QWidget):
 
     def change_land(self):
         self.is_land=not self.is_land
+
+    def change_listen(self):
+
+        self.is_listening = not self.is_listening
+        self.listenerThread.start_listen(self.is_listening)
+        if self.listenerThread.isRunning():
+            self.listenerThread.start_listen(self.is_listening)
+        else:
+            self.listenerThread.start()
     def moveStop(self):
         print("Stop")
         self.crawl_timer.stop()
