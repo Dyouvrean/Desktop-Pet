@@ -106,6 +106,8 @@ class DesktopPet(QWidget):
 
     def handleSpeech(self, text):
         print(f"Handling recognized speech: {text}")
+        if text == "run":
+           self.updateLeft_Right_Position()
 
     def end_animation(self,frameNumber):
         if frameNumber == self.movie.frameCount() - 1:
@@ -119,22 +121,22 @@ class DesktopPet(QWidget):
         self.climbing_timer.stop()
         self.walking_sound_timer.stop()
         self.myMenu = QMenu(self)
-        self.actionA = QAction("来回跑", self)
+        self.actionA = QAction("Run around", self)
         self.actionA.triggered.connect(self.moveleftRight)
-        self.actionB = QAction("停止", self)
+        self.actionB = QAction("Stop", self)
         self.actionB.triggered.connect(self.moveStop)
-        self.actionC = QAction("睡觉", self)
+        self.actionC = QAction("Sleep", self)
         self.actionC.triggered.connect(self.moveSleep)
-        self.actionD = QAction(QIcon("退出"), "退出", self)
+        self.actionD = QAction( "Quit", self)
         self.actionD.triggered.connect(self.quit)
-        self.actionE = QAction("来回爬", self)
+        self.actionE = QAction("Crawl around", self)
         self.actionE.triggered.connect(self.CrawlleftRight)
-        self.actionF = QAction("摇摆", self)
+        self.actionF = QAction("Shaking", self)
         self.actionF.triggered.connect(self.shaking)
 
         self.actionI = QAction("Tell me Time", self)
         self.actionI.triggered.connect(self.showTime)
-        self.actionG = QAction("落地状态", self)
+        self.actionG = QAction("Gravity on", self)
         self.actionG.setCheckable(True)
         self.actionG.setChecked(self.is_land)
         self.actionG.triggered.connect(self.change_land)
@@ -332,10 +334,6 @@ class DesktopPet(QWidget):
     def lastFrame(self,frameNumber):
         if frameNumber == self.movie.frameCount() - 1:
             self.movie.stop()
-        # Set the movie to its last frame
-        # QMovie's currentFrameNumber is 0-based, and frameCount is 1-based
-        # self.movie.jumpToFrame(self.movie.frameCount() - 1)
-
     def hide_time(self):
         self.dateTimeLabel.setHidden(True)
         self.image.setPixmap(self.pet_images[27][0])
