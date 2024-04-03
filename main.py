@@ -106,8 +106,9 @@ class DesktopPet(QWidget):
 
     def handleSpeech(self, text):
         print(f"Handling recognized speech: {text}")
-        if text == "run":
-           self.updateLeft_Right_Position()
+        print(text.split(" "))
+        if text.split(" ")[0]== "go":
+           self.moveleftRight()
 
     def end_animation(self,frameNumber):
         if frameNumber == self.movie.frameCount() - 1:
@@ -455,7 +456,6 @@ class DesktopPet(QWidget):
         self.is_land=not self.is_land
 
     def change_listen(self):
-
         self.is_listening = not self.is_listening
         self.listenerThread.start_listen(self.is_listening)
         if self.listenerThread.isRunning():
