@@ -100,7 +100,7 @@ class DesktopPet(QWidget):
         self.movie.start()
 
     def initSpeech_model(self):
-        self.listenerThread = ListenerThread(self.is_listening)
+        self.listenerThread = ListenerThread()
         self.listenerThread.recognizedSpeech.connect(self.handleSpeech)
         self.listenerThread.start()
 
@@ -457,11 +457,13 @@ class DesktopPet(QWidget):
 
     def change_listen(self):
         self.is_listening = not self.is_listening
-        self.listenerThread.start_listen(self.is_listening)
-        if self.listenerThread.isRunning():
-            self.listenerThread.start_listen(self.is_listening)
+        if self.listenerThread.is_listening:
+            self.listenerThread.stop_listening()
         else:
-            self.listenerThread.start()
+            self.listenerThread.start_listening()
+
+
+
     def moveStop(self):
         print("Stop")
         self.crawl_timer.stop()
