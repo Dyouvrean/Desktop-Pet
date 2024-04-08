@@ -15,7 +15,7 @@ class ListenerThread(QThread):
         with self.microphone as source:
             print("Calibrating microphone...")
             # Adjust the recognizer sensitivity to ambient noise
-            self.recognizer.adjust_for_ambient_noise(source)
+            self.recognizer.adjust_for_ambient_noise(source,duration=2)
             print("Say something!")
             print(self.is_listening)
             while True:
@@ -23,7 +23,7 @@ class ListenerThread(QThread):
                 if self.is_listening:
                     try:
                         # Listen for the first phrase and extract it into audio data
-                        audio = self.recognizer.listen(source, timeout=10)
+                        audio = self.recognizer.listen(source, timeout=10,phrase_time_limit=10)
                         print("Got audio! Recognizing...")
                         # Recognize speech using Google Web Speech API
                         text = self.recognizer.recognize_google(audio)
