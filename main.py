@@ -10,8 +10,8 @@ import random
 import threading
 from datetime import datetime
 from Speech_model import ListenerThread
-import webbrowser # open browser
 
+from Speech_Respond import respond
 class DesktopPet(QWidget):
     tool_name = '桌面宠物'
     def __init__(self, parent=None, **kwargs):
@@ -110,6 +110,7 @@ class DesktopPet(QWidget):
         print(text.split(" "))
         if text.split(" ")[0]== "go":
            self.moveleftRight()
+        respond(text)
 
     def end_animation(self,frameNumber):
         if frameNumber == self.movie.frameCount() - 1:
