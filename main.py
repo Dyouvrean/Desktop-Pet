@@ -10,6 +10,7 @@ import random
 import threading
 from datetime import datetime
 from Speech_model import ListenerThread
+import webbrowser # open browser
 
 class DesktopPet(QWidget):
     tool_name = '桌面宠物'
