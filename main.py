@@ -111,7 +111,6 @@ class DesktopPet(QWidget):
         return QSound.play(questionAudio[random.randint(0,1)])
     def handleSpeech(self, text):
         print(f"Handling recognized speech: {text}")
-        print(text.split(" "))
         if text.split(" ")[0]== "go":
            self.moveleftRight()
         respond(text)
