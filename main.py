@@ -103,8 +103,12 @@ class DesktopPet(QWidget):
     def initSpeech_model(self):
         self.listenerThread = ListenerThread()
         self.listenerThread.recognizedSpeech.connect(self.handleSpeech)
+        self.listenerThread.playSoundSignal.connect(self.get_random_question)
         self.listenerThread.start()
 
+    def get_random_question(self):
+        questionAudio = ['Audio/哈？哈？哈？.wav', "Audio/啊哈？.wav"]
+        return QSound.play(questionAudio[random.randint(0,1)])
     def handleSpeech(self, text):
         print(f"Handling recognized speech: {text}")
         print(text.split(" "))

@@ -1,5 +1,5 @@
 import webbrowser
-
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent,QSound
 
 def there_exists(terms, voice):
     for term in terms:
