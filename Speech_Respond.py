@@ -26,3 +26,6 @@ def respond(voice):
         QSound("Audio/乌拉呀哈（fast).wav).wav")
     if there_exists(["wechat"],voice):
         open_wechat()
+    if there_exists(["chat gpt"],voice):
+        url = f"https://chat.openai.com/"
+        webbrowser.get().open(url)
