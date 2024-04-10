@@ -21,8 +21,6 @@ class ListenerThread(QThread):
             # Adjust the recognizer sensitivity to ambient noise
             self.recognizer.adjust_for_ambient_noise(source,duration=2)
             print("Say something!")
-            print(self.is_listening)
-            QSound.play("Audio/走路.wav")
             while True:
                 print(self.is_listening)
                 if self.is_listening:

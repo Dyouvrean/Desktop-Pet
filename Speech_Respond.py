@@ -10,7 +10,6 @@ def there_exists(terms, voice):
 
 def open_wechat():
     try:
-        # Attempt to launch WeChat - Adjust the path as necessary for your system
         subprocess.Popen(r"C:\Program Files (x86)\Tencent\WeChat\WeChat.exe")
     except Exception as e:
         print(f"Error opening WeChat: {e}")

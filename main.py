@@ -68,6 +68,8 @@ class DesktopPet(QWidget):
         self.walking_sound_timer.timeout.connect(self.playWalkingSound)
         self.falling_sound_timer = QTimer(self)
         self.falling_sound_timer.timeout.connect(self.playFallingSound)
+        self.crawling_sound_timer = QTimer(self)
+        self.crawling_sound_timer.timeout.connect(self.playcrawlingSound)
         self.climbing_timer = QTimer(self)
         self.climbing_timer.timeout.connect(self.updateUP_downPosition)
         self.player = QMediaPlayer()
@@ -126,6 +128,7 @@ class DesktopPet(QWidget):
         self.shaking_sound_timer.stop()
         self.climbing_timer.stop()
         self.walking_sound_timer.stop()
+        self.crawling_sound_timer.stop()
         self.myMenu = QMenu(self)
         self.actionA = QAction("Run around", self)
         self.actionA.triggered.connect(self.moveleftRight)
@@ -278,12 +281,12 @@ class DesktopPet(QWidget):
         self.image.setPixmap(self.pet_images[29][0])
         if self.x()+ 20< 0 :
             self.image.setPixmap(self.pet_images[11][0])
-            self.move(-65,self.y())
+            self.move(-100,self.y())
             self.is_lean_on_wall = True
             return
-        elif (self.x()+ 130) > QApplication.desktop().width():
+        elif (self.x()+ 180) > QApplication.desktop().width():
             self.image.setPixmap(self.pet_images[46][0])
-            self.move(1840, self.y())
+            self.move(1800, self.y())
             self.is_lean_on_wall = True
             return
         elif  self.is_land:
@@ -307,8 +310,13 @@ class DesktopPet(QWidget):
         self.is_running = False
         self.is_shaking = False
         self.current_frame = 0
-        self.crawl_timer.start(100)
-
+        if self.directionX>0:
+            self.image.setPixmap(self.crawling_r_images[0])
+        else:
+            self.image.setPixmap(self.crawling_l_images[0])
+        self.crawl_timer.start(1000)
+        QSound.play("Audio/呀哈呀哈（红温）.wav")
+        self.crawling_sound_timer.start(2000)
     def shaking(self):
         self.is_running= False
         self.is_crawling= False
@@ -348,6 +356,8 @@ class DesktopPet(QWidget):
 
     def playWalkingSound(self):
         QSound.play("Audio/走路.wav")
+    def playcrawlingSound(self):
+        QSound.play("Audio/呀哈呀哈（红温）.wav")
 
     def playFallingSound(self):
         self.player.play()
