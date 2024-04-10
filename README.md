@@ -9,6 +9,13 @@
 * Climb the wall when leaning on the wall
 * Free body 
 * Move with the mouse
-
-## Feature Plan
 * speech_recognition
+    * open WeChat
+    * open google search
+    * open Youtube 
+    * open chatgpt website
+    * Go around
+## Feature Plan
+* AI 
+  * Emotion and Sentiment Analysis
+  * Text Generation Model
