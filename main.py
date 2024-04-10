@@ -72,6 +72,8 @@ class DesktopPet(QWidget):
         self.crawling_sound_timer.timeout.connect(self.playcrawlingSound)
         self.climbing_timer = QTimer(self)
         self.climbing_timer.timeout.connect(self.updateUP_downPosition)
+        self.climbing_sound_timer = QTimer(self)
+        self.climbing_sound_timer.timeout.connect(self.playclimbingSound)
         self.player = QMediaPlayer()
         url = QUrl.fromLocalFile("Audio/下落 (2).wav")
         self.content = QMediaContent(url)
@@ -129,6 +131,7 @@ class DesktopPet(QWidget):
         self.climbing_timer.stop()
         self.walking_sound_timer.stop()
         self.crawling_sound_timer.stop()
+        self.climbing_sound_timer.stop()
         self.myMenu = QMenu(self)
         self.actionA = QAction("Run around", self)
         self.actionA.triggered.connect(self.moveleftRight)
@@ -327,9 +330,13 @@ class DesktopPet(QWidget):
         self.shake_timer.start(600)
 
     def climbing(self):
+        self.is_crawling = True
+        self.is_running = False
+        self.is_shaking = False
         self.current_frame = 0
-        self.climbing_timer.start(100)
-
+        self.climbing_timer.start(500)
+        QSound.play("Audio/呀哈（大脸）.wav")
+        self.climbing_sound_timer.start(3000)
 
     def showTime(self):
         now = datetime.now()
@@ -358,7 +365,8 @@ class DesktopPet(QWidget):
         QSound.play("Audio/走路.wav")
     def playcrawlingSound(self):
         QSound.play("Audio/呀哈呀哈（红温）.wav")
-
+    def playclimbingSound(self):
+        QSound.play("Audio/呀哈（大脸）.wav")
     def playFallingSound(self):
         self.player.play()
     def updateAnimationFrame(self):
@@ -400,14 +408,15 @@ class DesktopPet(QWidget):
         self.move(self.x(), newY)
         self.updateUpDownAnimationFrame()
     def updateUpDownAnimationFrame(self):
-        if self.x() < -50:
+        print(self.x())
+        if self.x() <= -100:
             if self.directionY>0:
                 self.current_frame = (self.current_frame + 1) % len(self.wall_l_images)
                 self.image.setPixmap(self.pet_images[self.wall_l_images[self.current_frame]][0])
             else:
                 self.current_frame = (self.current_frame -1) % len(self.wall_l_images)
                 self.image.setPixmap(self.pet_images[self.wall_l_images[self.current_frame]][0])
-        elif self.x() > 1800:
+        elif self.x() >= 1800:
             if self.directionY>0:
                 self.current_frame = (self.current_frame + 1) % len(self.wall_r_images)
                 self.image.setPixmap(self.pet_images[self.wall_r_images[self.current_frame]][0])

@@ -22,7 +22,6 @@ class ListenerThread(QThread):
             self.recognizer.adjust_for_ambient_noise(source,duration=2)
             print("Say something!")
             while True:
-                print(self.is_listening)
                 if self.is_listening:
                     try:
                         # Listen for the first phrase and extract it into audio data
