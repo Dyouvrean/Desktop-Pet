@@ -27,6 +27,7 @@ class DesktopPet(QWidget):
         self.is_falling = False
         self.is_lean_on_wall = False
         self.is_listening = False
+        self.is_free = True
         self.velocity = 0
         self.gravity = 1  # Adjust this value to change the gravity effect
         #self.ground_level = QApplication.desktop().availableGeometry().bottom() - self.height()
@@ -74,6 +75,9 @@ class DesktopPet(QWidget):
         self.climbing_timer.timeout.connect(self.updateUP_downPosition)
         self.climbing_sound_timer = QTimer(self)
         self.climbing_sound_timer.timeout.connect(self.playclimbingSound)
+        self.waiting_timer = QTimer(self)
+        self.waiting_timer.timeout.connect(self.waiting)
+        self.waiting_timer.start(30000)
         self.player = QMediaPlayer()
         url = QUrl.fromLocalFile("Audio/下落 (2).wav")
         self.content = QMediaContent(url)
@@ -232,27 +236,6 @@ class DesktopPet(QWidget):
 
 
 
-    def commonAction(self):
-        # 每隔一段时间做个动作
-        self.timer_common = QTimer()
-        self.timer_common.timeout.connect(self.randomAct)
-        self.timer_common.start(1000)
-    def randomAct(self):
-        self.pet_images, iconpath = self.loadPetImages()
-        if not self.is_running_action:
-            self.is_running_action = True
-            self.action_images = random.choice(self.pet_images)
-            self.action_max_len = len(self.action_images)
-            self.action_pointer = 0
-        self.runFrame()
-
-    def runFrame(self):
-        if self.action_pointer == self.action_max_len:
-            self.is_running_action = False
-            self.action_pointer = 0
-            self.action_max_len = 0
-        self.image.setPixmap(self.action_images[self.action_pointer])
-        self.action_pointer += 1
 
 
 
@@ -303,15 +286,22 @@ class DesktopPet(QWidget):
         self.is_running = True
         self.is_crawling = False
         self.is_shaking = False
+        self.is_free = False
         self.current_frame=0
         self.move_timer.start(300)
         QSound.play("Audio/走路.wav")
         self.walking_sound_timer.start(3000)
 
+    def waiting(self):
+        audio = ["Audio/果酱乌拉.wav","Audio/哼歌乌拉.wav"]
+        if self.is_free:
+            QSound.play(audio[random.randint(0, 1)])
+
     def CrawlleftRight(self):
         self.is_crawling = True
         self.is_running = False
         self.is_shaking = False
+        self.is_free = False
         self.current_frame = 0
         if self.directionX>0:
             self.image.setPixmap(self.crawling_r_images[0])
@@ -324,6 +314,7 @@ class DesktopPet(QWidget):
         self.is_running= False
         self.is_crawling= False
         self.is_shaking= True
+        self.is_free = False
         self.current_frame = 0
         self.shaking_sound_timer.start(3000)
         QSound.play("Audio/摇摆.wav")
@@ -333,12 +324,14 @@ class DesktopPet(QWidget):
         self.is_crawling = True
         self.is_running = False
         self.is_shaking = False
+        self.is_free = False
         self.current_frame = 0
         self.climbing_timer.start(500)
         QSound.play("Audio/呀哈（大脸）.wav")
         self.climbing_sound_timer.start(3000)
 
     def showTime(self):
+
         now = datetime.now()
         dateTimeString = now.strftime("%Y-%m-%d %H:%M")
         self.dateTimeLabel.setText(dateTimeString)
@@ -490,6 +483,7 @@ class DesktopPet(QWidget):
 
     def moveStop(self):
         print("Stop")
+        self.is_free = True
         self.crawl_timer.stop()
         self.move_timer.stop()
         self.is_running=False
