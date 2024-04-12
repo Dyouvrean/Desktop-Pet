@@ -17,17 +17,12 @@ class DesktopPet(QWidget):
     def __init__(self, parent=None, **kwargs):
         super(DesktopPet, self).__init__(parent)
         self.action_images = None
-        self.up_down = False
-        self.is_running = False
-        self.is_crawling = False
-        self.is_follow_mouse = False
-        self.is_shaking =False
         self.is_land = False
-        self.index = 0
-        self.is_falling = False
         self.is_lean_on_wall = False
         self.is_listening = False
-        self.is_free = True
+        self.state = self.init_state_map()
+
+        self.index = 0
         self.velocity = 0
         self.gravity = 1  # Adjust this value to change the gravity effect
         #self.ground_level = QApplication.desktop().availableGeometry().bottom() - self.height()
@@ -86,6 +81,16 @@ class DesktopPet(QWidget):
         self.initSpeech_model()
         # self.commonAction()
         self.show()
+
+    def init_state_map(self):
+        return {
+            "run": False,
+            "crawl": False,
+            "follow_mouse": False,
+            "shake": False,
+            "fall": False,
+            "free": True
+        }
 
     def initDateTimeDisplay(self):
         self.dateTimeLabel = QLabel(self)
@@ -246,7 +251,7 @@ class DesktopPet(QWidget):
         self.falling_sound_timer.stop()
         if event.button() == Qt.LeftButton:
             QSound.play("Audio/呀哈.wav")
-            self.is_follow_mouse = True
+            self.state["follow_mouse"] = True
             self.mouse_drag_pos = event.globalPos() - self.pos()
             event.accept()
             self.setCursor(QCursor(Qt.OpenHandCursor))
@@ -254,7 +259,7 @@ class DesktopPet(QWidget):
     '''鼠标移动, 则宠物也移动'''
 
     def mouseMoveEvent(self, event):
-        if Qt.LeftButton and self.is_follow_mouse:
+        if Qt.LeftButton and self.state["follow_mouse"]:
             self.move(event.globalPos() - self.mouse_drag_pos)
             event.accept()
         self.image.setPixmap(self.pet_images[6][0])
@@ -262,7 +267,7 @@ class DesktopPet(QWidget):
 
     def mouseReleaseEvent(self, event):
         print("mousereleaaseEvent")
-        self.is_follow_mouse = False
+        self.state["follow_mouse"] = False
         self.setCursor(QCursor(Qt.ArrowCursor))
         self.image.setPixmap(self.pet_images[29][0])
         if self.x()+ 20< 0 :
@@ -276,17 +281,17 @@ class DesktopPet(QWidget):
             self.is_lean_on_wall = True
             return
         elif  self.is_land:
-            self.is_falling = True
+            self.state["fall"] = True
             self.gravity_timer.start(100)
             self.player.play()
             self.falling_sound_timer.start(1000)
 
         self.is_lean_on_wall = False
     def moveleftRight(self):
-        self.is_running = True
-        self.is_crawling = False
-        self.is_shaking = False
-        self.is_free = False
+        self.state["run"] = True
+        self.state["crawl"] = False
+        self.state["shake"] = False
+        self.state["free"] = False
         self.current_frame=0
         self.move_timer.start(300)
         QSound.play("Audio/走路.wav")
@@ -294,14 +299,14 @@ class DesktopPet(QWidget):
 
     def waiting(self):
         audio = ["Audio/果酱乌拉.wav","Audio/哼歌乌拉.wav"]
-        if self.is_free:
+        if self.state["free"]:
             QSound.play(audio[random.randint(0, 1)])
 
     def CrawlleftRight(self):
-        self.is_crawling = True
-        self.is_running = False
-        self.is_shaking = False
-        self.is_free = False
+        self.state["run"] = False
+        self.state["crawl"] = True
+        self.state["shake"] = False
+        self.state["free"] = False
         self.current_frame = 0
         if self.directionX>0:
             self.image.setPixmap(self.crawling_r_images[0])
@@ -311,20 +316,20 @@ class DesktopPet(QWidget):
         QSound.play("Audio/呀哈呀哈（红温）.wav")
         self.crawling_sound_timer.start(2000)
     def shaking(self):
-        self.is_running= False
-        self.is_crawling= False
-        self.is_shaking= True
-        self.is_free = False
+        self.state["run"] = False
+        self.state["crawl"] = False
+        self.state["shake"] = True
+        self.state["free"] = False
         self.current_frame = 0
         self.shaking_sound_timer.start(3000)
         QSound.play("Audio/摇摆.wav")
         self.shake_timer.start(600)
 
     def climbing(self):
-        self.is_crawling = True
-        self.is_running = False
-        self.is_shaking = False
-        self.is_free = False
+        self.state["run"] = False
+        self.state["crawl"] = True
+        self.state["shake"] = False
+        self.state["free"] = False
         self.current_frame = 0
         self.climbing_timer.start(500)
         QSound.play("Audio/呀哈（大脸）.wav")
@@ -363,21 +368,21 @@ class DesktopPet(QWidget):
     def playFallingSound(self):
         self.player.play()
     def updateAnimationFrame(self):
-        if self.is_running:
+        if self.state['run']:
             if self.directionX>0:
                 self.current_frame = (self.current_frame + 1) % len(self.running_r_images)
                 self.image.setPixmap(self.running_r_images[self.current_frame])
             else:
                 self.current_frame = (self.current_frame + 1) % len(self.running_l_images)
                 self.image.setPixmap(self.running_l_images[self.current_frame])
-        if self.is_crawling:
+        if self.state['crawl']:
             if self.directionX>0:
                 self.current_frame = (self.current_frame + 1) % len(self.crawling_r_images)
                 self.image.setPixmap(self.crawling_r_images[self.current_frame])
             else:
                 self.current_frame = (self.current_frame + 1) % len(self.crawling_l_images)
                 self.image.setPixmap(self.crawling_l_images[self.current_frame])
-        if self.is_shaking:
+        if self.state['shake']:
             self.current_frame=(self.current_frame + 1) % len(self.shake_images)
             self.image.setPixmap(self.pet_images[self.shake_images[self.current_frame]][0])
     def updateLeft_Right_Position(self):
@@ -437,7 +442,7 @@ class DesktopPet(QWidget):
         self.updateAnimationFrame()
 
     def applyGravity(self):
-        if not self.is_falling:
+        if not self.state['fall']:
             return
 
         self.velocity += self.gravity
@@ -448,7 +453,7 @@ class DesktopPet(QWidget):
         if newY >= self.ground_level:
             newY = self.ground_level
             self.velocity = 0
-            self.is_falling = False  # Stop falling once the ground is hit
+            self.state['fall'] = False  # Stop falling once the ground is hit
             self.image.setPixmap(self.pet_images[41][0])
             self.startFallThread()
             self.gravity_timer.stop()
@@ -480,14 +485,16 @@ class DesktopPet(QWidget):
             self.listenerThread.start_listening()
 
 
+    def turn_off(self):
+        for k in self.state.keys():
+            self.state[k] = False
+        self.state['free'] = True
 
     def moveStop(self):
         print("Stop")
-        self.is_free = True
+        self.turn_off()
         self.crawl_timer.stop()
         self.move_timer.stop()
-        self.is_running=False
-        self.is_crawling= False
 
 
     def moveSleep(self):
