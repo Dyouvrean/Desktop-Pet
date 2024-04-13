@@ -302,13 +302,15 @@ class DesktopPet(QWidget):
         audio = ["Audio/果酱乌拉.wav","Audio/哼歌乌拉.wav"]
         if self.state["free"]:
             #option = random.randint(0, 2)
-            option =2
+            option =3
             if option ==0:
                 QSound.play(audio[0])
             elif option ==1:
                 QSound.play(audio[1])
             elif option ==2 :
                 self.eat_pancake()
+            elif option ==3 :
+                self.dance()
 
     def eat_pancake(self):
         self.movie = QMovie("GIF/吃松饼.gif")
@@ -317,7 +319,13 @@ class DesktopPet(QWidget):
         self.image.setMovie(self.movie)
         QSound.play("Audio/吃松饼.wav")
         self.movie.start()
-
+    def dance(self):
+        self.movie = QMovie("GIF/睡衣跳舞.gif")
+        self.movie.frameChanged.connect(self.end_animation)
+        self.image.setAlignment(Qt.AlignCenter)
+        self.image.setMovie(self.movie)
+        QSound.play("Audio/睡衣跳舞.wav")
+        self.movie.start()
     def CrawlleftRight(self):
         self.state["run"] = False
         self.state["crawl"] = True
