@@ -15,6 +15,8 @@
     * open Youtube 
     * open chatgpt website
     * Go around
+    * Weather report
+* Random action when the pet is free
 ## Feature Plan
 * AI 
   * Emotion and Sentiment Analysis
