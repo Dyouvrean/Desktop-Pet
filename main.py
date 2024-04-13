@@ -301,8 +301,7 @@ class DesktopPet(QWidget):
     def waiting(self):
         audio = ["Audio/果酱乌拉.wav","Audio/哼歌乌拉.wav"]
         if self.state["free"]:
-            #option = random.randint(0, 2)
-            option =3
+            option = random.randint(0, 3)
             if option ==0:
                 QSound.play(audio[0])
             elif option ==1:
