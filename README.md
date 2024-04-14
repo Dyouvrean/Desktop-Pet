@@ -16,6 +16,7 @@
     * open chatgpt website
     * Go around
     * Weather report
+      * Animation when raining  
 * Random action when the pet is free
 ## Feature Plan
 * AI 

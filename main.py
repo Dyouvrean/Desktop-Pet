@@ -126,7 +126,12 @@ class DesktopPet(QWidget):
         print(f"Handling recognized speech: {text}")
         if text.split(" ")[0]== "go":
            self.moveleftRight()
-        respond(text)
+        res = respond(text)
+        if res:
+            temp,des = res
+            self.showWeather(temp,des)
+
+
 
     def end_animation(self,frameNumber):
         if frameNumber == self.movie.frameCount() - 1:
@@ -359,7 +364,6 @@ class DesktopPet(QWidget):
         self.climbing_sound_timer.start(3000)
 
     def showTime(self):
-
         now = datetime.now()
         dateTimeString = now.strftime("%Y-%m-%d %H:%M")
         self.dateTimeLabel.setText(dateTimeString)
@@ -373,6 +377,19 @@ class DesktopPet(QWidget):
         self.show()
         self.displayTimer.start(4000)
 
+    def showWeather(self,temp,des):
+        text ="Temperature: "+str(temp)+"\n"+str(des)
+        self.dateTimeLabel.setText(text)
+        self.dateTimeLabel.setHidden(False)
+        if "rain" in des:
+            self.movie = QMovie("GIF/雨衣.gif")
+            self.movie.frameChanged.connect(self.lastFrame)
+            self.image.setAlignment(Qt.AlignCenter)
+            self.image.setMovie(self.movie)
+            self.movie.start()
+            QSound.play("Audio/雨衣.wav")
+            self.show()
+        self.displayTimer.start(5000)
     def lastFrame(self,frameNumber):
         if frameNumber == self.movie.frameCount() - 1:
             self.movie.stop()
@@ -505,8 +522,10 @@ class DesktopPet(QWidget):
         self.is_listening = not self.is_listening
         if self.listenerThread.is_listening:
             self.listenerThread.stop_listening()
+            self.state["free"] = True
         else:
             self.listenerThread.start_listening()
+            self.state["free"] = False
 
 
     def turn_off(self):

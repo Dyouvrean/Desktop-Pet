@@ -37,9 +37,6 @@ def respond(voice):
             else:
                 city = voice.split("for")[-1]
             temperature,pressure, humidity,description = get_weather(city)
-            print(temperature)
-            print(pressure)
-            print(humidity)
-            print(description)
+            return temperature,description
         except Exception as e:
             print("no city name")
