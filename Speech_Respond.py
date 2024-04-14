@@ -1,6 +1,7 @@
 import webbrowser
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent,QSound
 import subprocess
+from weather_request import get_current_location,get_weather
 def there_exists(terms, voice):
     # voice = " ".join([i.lower() for i in voice.split(" ")])
     # print(voice)
@@ -29,3 +30,16 @@ def respond(voice):
     if there_exists(["chat gpt"],voice):
         url = f"https://chat.openai.com/"
         webbrowser.get().open(url)
+    if there_exists(['weather'],voice):
+        try:
+            if 'for' not in voice:
+                city = get_current_location()
+            else:
+                city = voice.split("for")[-1]
+            temperature,pressure, humidity,description = get_weather(city)
+            print(temperature)
+            print(pressure)
+            print(humidity)
+            print(description)
+        except Exception as e:
+            print("no city name")
